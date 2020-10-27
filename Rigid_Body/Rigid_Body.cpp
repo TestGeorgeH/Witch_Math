@@ -22,7 +22,10 @@ Matrix3d euler(double h, Matrix3d f_x0, Matrix3d dfdx_x0)
     Matrix3d result;
     for (int i=0; i<3; i++)
     {
-        result(i) = euler(h, f_x0(i), dfdx_x0(i));
+        for (int j=0; j<3; j++)
+        {
+            result(i,j) = euler(h, f_x0(i,j), dfdx_x0(i,j));
+        }
     }
     return result;
 }
@@ -62,7 +65,7 @@ void RigidBody::computeStepByEuler(double h)
     
     positionVector = euler(h, positionVector, speedVector);
 
-    rotationMatrix = euler(h, rotationMatrix, starFunction(rotationMatrix*rotationVector));
+    rotationMatrix = euler(h, rotationMatrix, starFunction(rotationVector)*rotationMatrix);
 }
 
 void RigidBody::viewPositionVector(){ std::cout << positionVector << '\n'; }
@@ -73,17 +76,20 @@ int main()
 {
     double mass = 1;
     Matrix3d cubeInertiaTensor, rotationMatrix;
+    rotationMatrix << 1, 0, 0,
+                      0, 1, 0,
+                      0, 0, 1;
     cubeInertiaTensor << 1, 0, 0,
                          0, 1, 0,
                          0, 0, 1;
     Vector3d positionVector, linearMomentum, angularMomentum;
-    positionVector << 1, 0, 0;
-    linearMomentum << 1, 0, 0;
-    angularMomentum << 1, 1, 0;
+    positionVector << 0, 0, 0;
+    linearMomentum << 0.1, 0, 0;
+    angularMomentum << 0.5, 1, 0;
 
     RigidBody body(mass, cubeInertiaTensor, positionVector, rotationMatrix, linearMomentum, angularMomentum);
     
-    while(true)
+    for (int i=0; i<30; i++)
     {
         body.viewPositionVector();
         body.viewRotationMatrix();
