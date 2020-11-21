@@ -1,5 +1,4 @@
 #include "Rigid_Body.h"
-#include <iostream>
 
 double euler(double h, double f_x0, double dfdt_x0)
 {
@@ -80,6 +79,7 @@ RigidBody::RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, Vector3d pos
     inertiaTensorInv = inertiaTensorBody.inverse();
     totalForce << 0, 0, 0;
     totalTorque << 0, 0, 0;
+    quaternion << 0, 0, 0, 0;
 }
 
 
@@ -118,20 +118,37 @@ Matrix3d dRdtFunction(double h, RigidBody body)
     return (starFunction(body.rotationVectorMetod(h))*(body.rotationMatrix));
 }
 
+void RigidBody::debugComputations()
+{
+    R_t = rotationMatrix.transpose();
+    R_min1 = rotationMatrix.inverse();
+    detR = rotationMatrix.determinant();
+}
+
+void RigidBody::computeQuaternion()
+{
+    quaternion(0) = sqrt(1 + rotationMatrix(0,0) + rotationMatrix(1,1) + rotationMatrix(2,2))/2;
+    quaternion(1) = (rotationMatrix(2,1) - rotationMatrix(1,2))/(4*quaternion(0));
+    quaternion(2) = (rotationMatrix(0,2) - rotationMatrix(2,0))/(4*quaternion(0));
+    quaternion(3) = (rotationMatrix(1,0) - rotationMatrix(0,1))/(4*quaternion(0));
+}
+
 void RigidBody::computeStepByEuler(double h)
 {
     inertiaTensorInv = (rotationMatrix)*(inertiaTensorBody.inverse())*(rotationMatrix.transpose());
     positionVector = euler(h, positionVector, *this, speedVectorFunction);
     rotationMatrix = euler(h, rotationMatrix, *this, dRdtFunction);
+    computeQuaternion();
+    debugComputations();
 }
 
 void RigidBody::viewPositionVector(){ std::cout << positionVector << '\n'; }
 
 void RigidBody::viewRotationMatrix(){ std::cout << rotationMatrix << '\n'; }
 
-int main()
+RigidBody* CubeRigidBody()
 {
-    double mass = 1;
+    double mass = 10;
     Matrix3d cubeInertiaTensor, rotationMatrix;
     rotationMatrix << 1, 0, 0,
                       0, 1, 0,
@@ -141,16 +158,8 @@ int main()
                          0, 0, 1;
     Vector3d positionVector, linearMomentum, angularMomentum;
     positionVector << 0, 0, 0;
-    linearMomentum << 0.1, 0, 0;
-    angularMomentum << 0.5, 1, 0;
-
-    RigidBody body(mass, cubeInertiaTensor, positionVector, rotationMatrix, linearMomentum, angularMomentum);
-    
-    for (int i=0; i<3000; i++)
-    {
-        body.viewPositionVector();
-        body.viewRotationMatrix();
-        std::cout << '\n';
-        body.computeStepByEuler(0.01);
-    }
+    linearMomentum << 0.5, 0, 0;
+    angularMomentum << 1, 2, 0;
+    auto result = new RigidBody(mass, cubeInertiaTensor, positionVector, rotationMatrix, linearMomentum, angularMomentum);
+    return result;
 }
