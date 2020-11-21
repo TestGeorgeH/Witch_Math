@@ -55,7 +55,7 @@ public:
 
 };
 
-RigidBody* CubeRigidBody();
+RigidBody* CylinderRigidBody(double r,double h);
 
 double euler(double h, double f_x0, double dfdt_x0);
 Vector3d euler(double h, Vector3d f_x0, Vector3d dfdt_x0);

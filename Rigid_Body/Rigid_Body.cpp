@@ -146,20 +146,20 @@ void RigidBody::viewPositionVector(){ std::cout << positionVector << '\n'; }
 
 void RigidBody::viewRotationMatrix(){ std::cout << rotationMatrix << '\n'; }
 
-RigidBody* CubeRigidBody()
+RigidBody* CylinderRigidBody(double r,double h)
 {
-    double mass = 10;
-    Matrix3d cubeInertiaTensor, rotationMatrix;
+    double mass = 1;
+    Matrix3d cylinderInertiaTensor, rotationMatrix;
     rotationMatrix << 1, 0, 0,
                       0, 1, 0,
                       0, 0, 1;
-    cubeInertiaTensor << 1, 0, 0,
-                         0, 1, 0,
-                         0, 0, 1;
+    cylinderInertiaTensor << (mass/12) * (3*r*r + h*h), 0, 0,
+                         0, (mass/12) * (3*r*r + h*h), 0,
+                         0, 0, (mass * r*r / 2.0);
     Vector3d positionVector, linearMomentum, angularMomentum;
     positionVector << 0, 0, 0;
-    linearMomentum << 0.5, 0, 0;
-    angularMomentum << 1, 2, 0;
-    auto result = new RigidBody(mass, cubeInertiaTensor, positionVector, rotationMatrix, linearMomentum, angularMomentum);
+    linearMomentum << 0, 0, 0;
+    angularMomentum << 20, 40, 8;
+    auto result = new RigidBody(mass, cylinderInertiaTensor, positionVector, rotationMatrix, linearMomentum, angularMomentum);
     return result;
 }

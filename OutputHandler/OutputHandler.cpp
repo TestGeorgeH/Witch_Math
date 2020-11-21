@@ -6,7 +6,7 @@
 #define Cos(th) cos(M_PI/180*(th))
 #define Sin(th) sin(M_PI/180*(th))
 
-RigidBody rigidBody = *(CubeRigidBody());
+RigidBody rigidBody = *(CylinderRigidBody(20, 50));
 
 
 void Idle() {
