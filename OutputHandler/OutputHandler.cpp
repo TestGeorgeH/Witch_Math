@@ -44,7 +44,8 @@ void drawCylinder() {
     glEnd();
 }
 
-void Display() {
+void Display()
+{
     glViewport(0, 0, 600, 600);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -55,10 +56,15 @@ void Display() {
     rigidBody.computeStepByEuler(0.01);
     glPushMatrix();
     glTranslated(rigidBody.positionVector(0), rigidBody.positionVector(1), rigidBody.positionVector(2) - 5);
-    std::cout  << "R_t\n" << rigidBody.R_t << "\n\n";
-    std::cout  << "R_-1\n" << rigidBody.R_min1 << "\n\n";
-    std::cout  << "detR\n" << rigidBody.detR << "\n\n";
-    std::cout  << "R_t - R_-1\n" << rigidBody.R_t - rigidBody.R_min1 << "\n\n";
+    // std::cout  << "R_t\n" << rigidBody.R_t << "\n\n";
+    // std::cout  << "R_-1\n" << rigidBody.R_min1 << "\n\n";
+    // std::cout  << "detR\n" << rigidBody.detR << "\n\n";
+    // std::cout  << "R_t - R_-1\n" << rigidBody.R_t - rigidBody.R_min1 << "\n\n";
+    GLdouble rotationMatrixForOpenGL[16] = {rigidBody.rotationMatrix(0,0), rigidBody.rotationMatrix(0,1), rigidBody.rotationMatrix(0,2), 0,
+                                            rigidBody.rotationMatrix(1,0), rigidBody.rotationMatrix(1,1), rigidBody.rotationMatrix(1,2), 0,
+                                            rigidBody.rotationMatrix(2,0), rigidBody.rotationMatrix(2,1), rigidBody.rotationMatrix(2,2), 0,
+                                            0, 0, 0, 1};
+    // glLoadMatrixd(rotationMatrixForOpenGL);
     glRotated(acos(rigidBody.quaternion(0)) * 360 / M_PI, rigidBody.quaternion(1), rigidBody.quaternion(2), rigidBody.quaternion(3));
     drawCylinder();
     glPopMatrix();
@@ -71,7 +77,7 @@ int main(int argc, char * argv [])
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowSize(300, 300);
+    glutInitWindowSize(900, 900);
     glutInitWindowPosition(0, 0);
     glutCreateWindow("WitchMath");
     glutDisplayFunc(Display);
