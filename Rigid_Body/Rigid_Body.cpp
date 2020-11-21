@@ -127,7 +127,7 @@ void RigidBody::debugComputations()
 
 void RigidBody::computeQuaternion()
 {
-    quaternion(0) = sqrt(1 + rotationMatrix(0,0) + rotationMatrix(1,1) + rotationMatrix(2,2))/2;
+    quaternion(0) = sqrt(1 + rotationMatrix(0,0) + rotationMatrix(1,1) + rotationMatrix(2,2))/2.0;
     quaternion(1) = (rotationMatrix(2,1) - rotationMatrix(1,2))/(4*quaternion(0));
     quaternion(2) = (rotationMatrix(0,2) - rotationMatrix(2,0))/(4*quaternion(0));
     quaternion(3) = (rotationMatrix(1,0) - rotationMatrix(0,1))/(4*quaternion(0));
@@ -141,10 +141,6 @@ void RigidBody::computeStepByEuler(double h)
     computeQuaternion();
     debugComputations();
 }
-
-void RigidBody::viewPositionVector(){ std::cout << positionVector << '\n'; }
-
-void RigidBody::viewRotationMatrix(){ std::cout << rotationMatrix << '\n'; }
 
 RigidBody* CylinderRigidBody(double r,double h)
 {

@@ -37,9 +37,6 @@ public:
 
     void computeQuaternion();
 
-    void viewPositionVector();
-    void viewRotationMatrix();
-
     Vector3d linearMomentumMetod(double h);
     Vector3d angularMomentumMetod(double h);
     Vector3d speedVectorMetod(double h);
