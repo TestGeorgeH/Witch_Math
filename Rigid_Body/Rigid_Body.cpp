@@ -1,34 +1,5 @@
 #include "Rigid_Body.h"
 
-double euler(double h, double f_x0, double dfdt_x0)
-{
-    double result = f_x0 + h * dfdt_x0;
-    return result;
-}
-
-Vector3d euler(double h, Vector3d f_x0, Vector3d dfdt_x0)
-{
-    Vector3d result;
-    for (int i=0; i<3; i++)
-    {
-        result(i) = euler(h, f_x0(i), dfdt_x0(i));
-    }
-    return result;
-}
-
-Matrix3d euler(double h, Matrix3d f_x0, Matrix3d dfdt_x0)
-{
-    Matrix3d result;
-    for (int i=0; i<3; i++)
-    {
-        for (int j=0; j<3; j++)
-        {
-            result(i,j) = euler(h, f_x0(i,j), dfdt_x0(i,j));
-        }
-    }
-    return result;
-}
-
 double euler(double h, double f_x0, RigidBody body, double f(double h, RigidBody body))
 {
     double result = f_x0 + h * (f(h, body));
@@ -82,14 +53,24 @@ RigidBody::RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, Vector3d pos
 }
 
 
+Vector3d totalForceFunction(double h, RigidBody body)
+{
+    return body.totalForce;
+}
+
+Vector3d totalTorqueFunction(double h, RigidBody body)
+{
+    return body.totalTorque;
+}
+
 Vector3d RigidBody::linearMomentumMetod(double h)
 {
-    return euler(h, linearMomentum, totalForce);
+    return euler(h, linearMomentum, *this, totalForceFunction);
 }
 
 Vector3d RigidBody::angularMomentumMetod(double h)
 {
-    return euler(h, angularMomentum, totalTorque);
+    return euler(h, angularMomentum, *this, totalTorqueFunction);
 }
 
 Vector3d RigidBody::speedVectorMetod(double h)
