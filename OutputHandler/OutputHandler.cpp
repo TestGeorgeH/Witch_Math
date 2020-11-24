@@ -56,16 +56,13 @@ void Display()
     rigidBody.computeStepByEuler(0.01);
     glPushMatrix();
     glTranslated(rigidBody.positionVector(0), rigidBody.positionVector(1), rigidBody.positionVector(2) - 5);
-    // std::cout  << "R_t\n" << rigidBody.R_t << "\n\n";
-    // std::cout  << "R_-1\n" << rigidBody.R_min1 << "\n\n";
     // std::cout  << "detR\n" << rigidBody.detR << "\n\n";
     // std::cout  << "R_t - R_-1\n" << rigidBody.R_t - rigidBody.R_min1 << "\n\n";
-    GLdouble rotationMatrixForOpenGL[16] = {rigidBody.rotationMatrix(0,0), rigidBody.rotationMatrix(0,1), rigidBody.rotationMatrix(0,2), 0,
-                                            rigidBody.rotationMatrix(1,0), rigidBody.rotationMatrix(1,1), rigidBody.rotationMatrix(1,2), 0,
-                                            rigidBody.rotationMatrix(2,0), rigidBody.rotationMatrix(2,1), rigidBody.rotationMatrix(2,2), 0,
-                                            0, 0, 0, 1};
-    // glLoadMatrixd(rotationMatrixForOpenGL);
-    glRotated(acos(rigidBody.quaternion(0)) * 360 / M_PI, rigidBody.quaternion(1), rigidBody.quaternion(2), rigidBody.quaternion(3));
+    GLdouble rotationMatrixForOpenGL[16] = {rigidBody.rotationMatrix(0,0), rigidBody.rotationMatrix(1,0), rigidBody.rotationMatrix(2,0), 0,
+                                            rigidBody.rotationMatrix(0,1), rigidBody.rotationMatrix(1,1), rigidBody.rotationMatrix(2,1), 0,
+                                            rigidBody.rotationMatrix(0,2), rigidBody.rotationMatrix(1,2), rigidBody.rotationMatrix(2,2), 0,
+                                            0, 0, 0, 1}; // The matrix is column major
+    glMultMatrixd(rotationMatrixForOpenGL);
     drawCylinder();
     glPopMatrix();
     glFlush();

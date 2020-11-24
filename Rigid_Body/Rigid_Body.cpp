@@ -79,7 +79,6 @@ RigidBody::RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, Vector3d pos
     inertiaTensorInv = inertiaTensorBody.inverse();
     totalForce << 0, 0, 0;
     totalTorque << 0, 0, 0;
-    quaternion << 0, 0, 0, 0;
 }
 
 
@@ -118,6 +117,11 @@ Matrix3d dRdtFunction(double h, RigidBody body)
     return (starFunction(body.rotationVectorMetod(h))*(body.rotationMatrix));
 }
 
+void RigidBody::rotationMatrixToNormal()
+{
+    rotationMatrix = (rotationMatrix + rotationMatrix.transpose().inverse())/2;
+}
+
 void RigidBody::debugComputations()
 {
     R_t = rotationMatrix.transpose();
@@ -125,20 +129,12 @@ void RigidBody::debugComputations()
     detR = rotationMatrix.determinant();
 }
 
-void RigidBody::computeQuaternion()
-{
-    quaternion(0) = sqrt(1 + rotationMatrix(0,0) + rotationMatrix(1,1) + rotationMatrix(2,2))/2.0;
-    quaternion(1) = (rotationMatrix(2,1) - rotationMatrix(1,2))/(4*quaternion(0));
-    quaternion(2) = (rotationMatrix(0,2) - rotationMatrix(2,0))/(4*quaternion(0));
-    quaternion(3) = (rotationMatrix(1,0) - rotationMatrix(0,1))/(4*quaternion(0));
-}
-
 void RigidBody::computeStepByEuler(double h)
 {
     inertiaTensorInv = (rotationMatrix)*(inertiaTensorBody.inverse())*(rotationMatrix.transpose());
     positionVector = euler(h, positionVector, *this, speedVectorFunction);
     rotationMatrix = euler(h, rotationMatrix, *this, dRdtFunction);
-    computeQuaternion();
+    rotationMatrixToNormal();
     debugComputations();
 }
 

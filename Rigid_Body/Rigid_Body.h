@@ -28,14 +28,11 @@ public:
     Vector3d totalForce;
     Vector3d totalTorque; // It's like angular force, but not
 
-    Vector4d quaternion;
-
     RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, Vector3d positionVectorInp, Matrix3d rotationMatrixInp, Vector3d linearMomentumInp, Vector3d angularMomentumInp);
     void updateTotalForce(Vector3d totalForceInp);
     void updateTotalTorque(Vector3d totalTorqueInp);
+    void rotationMatrixToNormal();
     void computeStepByEuler(double h);
-
-    void computeQuaternion();
 
     Vector3d linearMomentumMetod(double h);
     Vector3d angularMomentumMetod(double h);
