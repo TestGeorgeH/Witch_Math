@@ -1,33 +1,6 @@
 #include "Rigid_Body.h"
 
-double euler(double h, double f_x0, RigidBody body, double f(double h, RigidBody body))
-{
-    double result = f_x0 + h * (f(h, body));
-    return result;
-}
-
-Vector3d euler(double h, Vector3d f_x0, RigidBody body, Vector3d f(double h, RigidBody body))
-{
-    Vector3d result;
-    for (int i=0; i<3; i++)
-    {
-        result(i) = f_x0(i) + h * f(h, body)(i);
-    }
-    return result;
-}
-
-Matrix3d euler(double h, Matrix3d f_x0, RigidBody body, Matrix3d f(double h, RigidBody body))
-{
-    Matrix3d result;
-    for (int i=0; i<3; i++)
-    {
-        for (int j=0; j<3; j++)
-        {
-            result(i,j) = f_x0(i,j) + h * f(h, body)(i,j);
-        }
-    }
-    return result;
-}
+using namespace std;
 
 Matrix3d starFunction(Vector3d x)
 {
@@ -38,101 +11,112 @@ Matrix3d starFunction(Vector3d x)
     return result;
 }
 
-RigidBody::RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, Vector3d positionVectorInp, Matrix3d rotationMatrixInp, Vector3d linearMomentumInp, Vector3d angularMomentumInp)
+void RigidBody::rotationMatrixToNormal()
+{
+    Matrix3d R = bodyPosition.rotationMatrix;
+    bodyPosition.rotationMatrix = (R + R.transpose().inverse())/2;
+}
+
+RigidBody::RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, BodyPosition bodyPositionInp, Derivatives derivativesInp)
 {
     mass = massInp;
     inertiaTensorBody = inertiaTensorBodyInp;
-    positionVector = positionVectorInp;
-    rotationMatrix = rotationMatrixInp;
-    linearMomentum = linearMomentumInp;
-    angularMomentum = angularMomentumInp;
+    bodyPosition.positionVector = bodyPositionInp.positionVector;
+    bodyPosition.rotationMatrix = bodyPositionInp.rotationMatrix;
+    derivatives.linearMomentum = derivativesInp.linearMomentum;
+    derivatives.angularMomentum = derivativesInp.angularMomentum;
 
-    inertiaTensorInv = inertiaTensorBody.inverse();
-    totalForce << 0, 0, 0;
-    totalTorque << 0, 0, 0;
+    externalInfluences.totalForce << 0, 0, 0;
+    externalInfluences.totalTorque << 0, 0, 0;
 }
 
 
-Vector3d totalForceFunction(double h, RigidBody body)
+template <typename T>
+T baseStepByRungeKutt(double h, T currentState, const function<T (double h, T state)>& f)
 {
-    return body.totalForce;
+    T k1, k2, k3, k4;
+    k1 = f(h, currentState);
+    k2 = f(h, currentState + (h/2)*k1);
+    k3 = f(h, currentState + (h/2)*k2);
+    k4 = f(h, currentState + h*k3);
+    return currentState + (h/6)*(k1 + 2*k2 + 2*k3 + k4);
 }
 
-Vector3d totalTorqueFunction(double h, RigidBody body)
+void RigidBody::makeStepByRungeKutt(double step)
 {
-    return body.totalTorque;
+    ExternalInfluences theExternalInfluences = externalInfluences;
+    auto totalForceFunction = [theExternalInfluences](double h, Vector3d currentState){ return theExternalInfluences.totalForce; };
+    auto totalTorqueFunction = [theExternalInfluences](double h, Vector3d currentState){ return theExternalInfluences.totalTorque; };
+
+    auto linearMomentumFunction = [totalForceFunction](double h, Vector3d currentState)
+    { return (baseStepByRungeKutt <Vector3d> (h, currentState, totalForceFunction)); };
+    
+    auto angularMomentumFunction = [totalTorqueFunction](double h, Vector3d currentState)
+    {
+         return baseStepByRungeKutt <Vector3d> (h, currentState, totalTorqueFunction);
+    };
+
+    derivatives.linearMomentum = linearMomentumFunction(step, derivatives.linearMomentum);
+    derivatives.angularMomentum = angularMomentumFunction(step, derivatives.angularMomentum);
+
+    auto theMass = mass;
+    auto linearVelocityFunction = [theMass, linearMomentumFunction](double h, Vector3d currentState){ return linearMomentumFunction(h, currentState)/theMass; };
+    bodyPosition.positionVector = baseStepByRungeKutt <Vector3d> (step, bodyPosition.positionVector, linearVelocityFunction);
+
+    Matrix3d theRotationMatrix = bodyPosition.rotationMatrix;
+    Matrix3d theInertiaTensorBody = inertiaTensorBody;
+    Vector3d theAngularMomentum = derivatives.angularMomentum; 
+    auto rotationMatrixDerivative = [theInertiaTensorBody, theRotationMatrix, angularMomentumFunction, theAngularMomentum](double h, Matrix3d currentState)
+    {
+        Vector3d angularMomentum = angularMomentumFunction(h, theAngularMomentum);
+        Matrix3d inertiaTensorInv = (theRotationMatrix)*(theInertiaTensorBody.inverse())*(theRotationMatrix.transpose());
+        Vector3d angularVelocity = inertiaTensorInv * angularMomentum;
+        Matrix3d starMatrix = starFunction(angularVelocity);
+        Matrix3d result = starMatrix * currentState;
+        return result;
+    };
+
+    bodyPosition.rotationMatrix = baseStepByRungeKutt <Matrix3d> (step, bodyPosition.rotationMatrix, rotationMatrixDerivative);
+    rotationMatrixToNormal();
+    
+    debugComputations();
 }
 
-Vector3d RigidBody::linearMomentumMetod(double h)
+void RigidBody::view()
 {
-    return euler(h, linearMomentum, *this, totalForceFunction);
-}
-
-Vector3d RigidBody::angularMomentumMetod(double h)
-{
-    return euler(h, angularMomentum, *this, totalTorqueFunction);
-}
-
-Vector3d RigidBody::speedVectorMetod(double h)
-{
-    return (linearMomentumMetod(h)/mass);
-}
-
-Vector3d speedVectorFunction(double h, RigidBody body)
-{
-    return (body.linearMomentumMetod(h)/(body.mass));
-}
-
-Vector3d RigidBody::rotationVectorMetod(double h)
-{
-    return (inertiaTensorInv*angularMomentumMetod(h));
-}
-
-Matrix3d RigidBody::dRdtMetod(double h)
-{
-    return (starFunction(rotationVectorMetod(h))*rotationMatrix);
-}
-
-Matrix3d dRdtFunction(double h, RigidBody body)
-{
-    return (starFunction(body.rotationVectorMetod(h))*(body.rotationMatrix));
-}
-
-void RigidBody::rotationMatrixToNormal()
-{
-    rotationMatrix = (rotationMatrix + rotationMatrix.transpose().inverse())/2;
+    cout << "angularMomentum\n" << derivatives.angularMomentum << "\n\n";
+    cout << "linearMomentum\n" << derivatives.linearMomentum << "\n\n";
+    cout << "totalForce\n" << externalInfluences.totalForce << "\n\n";
+    cout << "totalTorque\n" << externalInfluences.totalTorque << "\n\n";
+    cout << "positionVector\n" << bodyPosition.positionVector << "\n\n";
+    cout << "rotationMatrix\n" << bodyPosition.rotationMatrix << "\n\n\n";
 }
 
 void RigidBody::debugComputations()
 {
-    R_t = rotationMatrix.transpose();
-    R_min1 = rotationMatrix.inverse();
-    detR = rotationMatrix.determinant();
-}
-
-void RigidBody::computeStepByEuler(double h)
-{
-    inertiaTensorInv = (rotationMatrix)*(inertiaTensorBody.inverse())*(rotationMatrix.transpose());
-    positionVector = euler(h, positionVector, *this, speedVectorFunction);
-    rotationMatrix = euler(h, rotationMatrix, *this, dRdtFunction);
-    rotationMatrixToNormal();
-    debugComputations();
+    R_t = bodyPosition.rotationMatrix.transpose();
+    R_min1 = bodyPosition.rotationMatrix.inverse();
+    detR = bodyPosition.rotationMatrix.determinant();
 }
 
 RigidBody* CylinderRigidBody(double r,double h)
 {
     double mass = 1;
-    Matrix3d cylinderInertiaTensor, rotationMatrix;
-    rotationMatrix << 1, 0, 0,
-                      0, 1, 0,
-                      0, 0, 1;
+    Matrix3d cylinderInertiaTensor;
+    Derivatives derivatives;
+    BodyPosition bodyPosition;
+
+    bodyPosition.rotationMatrix << 1, 0, 0,
+                                   0, 1, 0,
+                                   0, 0, 1;
     cylinderInertiaTensor << (mass/12) * (3*r*r + h*h), 0, 0,
-                         0, (mass/12) * (3*r*r + h*h), 0,
-                         0, 0, (mass * r*r / 2.0);
-    Vector3d positionVector, linearMomentum, angularMomentum;
-    positionVector << 0, 0, 0;
-    linearMomentum << 0, 0, 0;
-    angularMomentum << 20, 40, 8;
-    auto result = new RigidBody(mass, cylinderInertiaTensor, positionVector, rotationMatrix, linearMomentum, angularMomentum);
+                              0, (mass/12) * (3*r*r + h*h), 0,
+                              0, 0, (mass * r*r / 2.0);
+    bodyPosition.positionVector << 0, 0, 0;
+    
+    derivatives.linearMomentum << 0, 0, 0;
+    derivatives.angularMomentum << 20, 40, 8;
+
+    auto result = new RigidBody(mass, cylinderInertiaTensor, bodyPosition, derivatives);
     return result;
 }

@@ -1,61 +1,53 @@
 #include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <cmath>
+#include <functional>
 
 using namespace Eigen;
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
 
-class RigidBody
+struct ExternalInfluences
 {
-public:
-    // Constant things
-    double mass;
-    Matrix3d inertiaTensorBody;
-    // Matrix3d inertiaTensorBodyInv;
+    Vector3d totalForce;
+    Vector3d totalTorque; 
+};
 
-    // Variables of system's state
-    Vector3d positionVector;
-    Matrix3d rotationMatrix; // With this ones you can draw the body
+struct Derivatives
+{
     Vector3d linearMomentum;
     Vector3d angularMomentum;
+};
 
-    // Variables for computing system's state
-    Matrix3d inertiaTensorInv;
+struct BodyPosition
+{
+    Vector3d positionVector; // Do get-ers?
+    Matrix3d rotationMatrix; // With this ones you can draw the body    
+};
 
-    // Pre-computed quantities
-    // (This is all(*) information you need for computing other variables)
-    Vector3d totalForce;
-    Vector3d totalTorque; // It's like angular force, but not
+class RigidBody
+{
+private:
+    double mass;
+    Matrix3d inertiaTensorBody;
 
-    RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, Vector3d positionVectorInp, Matrix3d rotationMatrixInp, Vector3d linearMomentumInp, Vector3d angularMomentumInp);
-    void updateTotalForce(Vector3d totalForceInp);
-    void updateTotalTorque(Vector3d totalTorqueInp);
+    Derivatives derivatives;
+    ExternalInfluences externalInfluences;
+
     void rotationMatrixToNormal();
-    void computeStepByEuler(double h);
 
-    Vector3d linearMomentumMetod(double h);
-    Vector3d angularMomentumMetod(double h);
-    Vector3d speedVectorMetod(double h);
-    Vector3d rotationVectorMetod(double h);
-    Matrix3d dRdtMetod(double h);
+public:
+    BodyPosition bodyPosition;
+
+    RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, BodyPosition bodyPositionInp, Derivatives derivativesInp);
+    void makeStepByRungeKutt(double h);
+    void view();
 
     // DEBUG CHECKERS
     Matrix3d R_t;
     Matrix3d R_min1;
     double detR;
     void debugComputations();
-    
-
 };
 
 RigidBody* CylinderRigidBody(double r,double h);
-
-double euler(double h, double f_x0, double dfdt_x0);
-Vector3d euler(double h, Vector3d f_x0, Vector3d dfdt_x0);
-Matrix3d euler(double h, Matrix3d f_x0, Matrix3d dfdt_x0);
-double euler(double h, double f_x0, RigidBody body, double f(double h, RigidBody body));
-Vector3d euler(double h, Vector3d f_x0, RigidBody body, Vector3d f(double h, RigidBody body));
-Matrix3d euler(double h, Matrix3d f_x0, RigidBody body, Matrix3d f(double h, RigidBody body));
-
-Matrix3d starFunction(Vector3d x);

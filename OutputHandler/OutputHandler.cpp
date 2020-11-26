@@ -53,14 +53,17 @@ void Display()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    rigidBody.computeStepByEuler(0.01);
+    rigidBody.makeStepByRungeKutt(0.01);
     glPushMatrix();
-    glTranslated(rigidBody.positionVector(0), rigidBody.positionVector(1), rigidBody.positionVector(2) - 5);
+    
+    BodyPosition rigidBodyPosition = rigidBody.bodyPosition;
+
+    glTranslated(rigidBodyPosition.positionVector(0), rigidBodyPosition.positionVector(1), rigidBodyPosition.positionVector(2) - 5);
     // std::cout  << "detR\n" << rigidBody.detR << "\n\n";
     // std::cout  << "R_t - R_-1\n" << rigidBody.R_t - rigidBody.R_min1 << "\n\n";
-    GLdouble rotationMatrixForOpenGL[16] = {rigidBody.rotationMatrix(0,0), rigidBody.rotationMatrix(1,0), rigidBody.rotationMatrix(2,0), 0,
-                                            rigidBody.rotationMatrix(0,1), rigidBody.rotationMatrix(1,1), rigidBody.rotationMatrix(2,1), 0,
-                                            rigidBody.rotationMatrix(0,2), rigidBody.rotationMatrix(1,2), rigidBody.rotationMatrix(2,2), 0,
+    GLdouble rotationMatrixForOpenGL[16] = {rigidBodyPosition.rotationMatrix(0,0), rigidBodyPosition.rotationMatrix(1,0), rigidBodyPosition.rotationMatrix(2,0), 0,
+                                            rigidBodyPosition.rotationMatrix(0,1), rigidBodyPosition.rotationMatrix(1,1), rigidBodyPosition.rotationMatrix(2,1), 0,
+                                            rigidBodyPosition.rotationMatrix(0,2), rigidBodyPosition.rotationMatrix(1,2), rigidBodyPosition.rotationMatrix(2,2), 0,
                                             0, 0, 0, 1}; // The matrix is column major
     glMultMatrixd(rotationMatrixForOpenGL);
     drawCylinder();
@@ -71,7 +74,6 @@ void Display()
 
 int main(int argc, char * argv [])
 {
-    
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(900, 900);
