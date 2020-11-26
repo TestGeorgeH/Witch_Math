@@ -42,12 +42,6 @@ public:
     RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, BodyPosition bodyPositionInp, Derivatives derivativesInp);
     void makeStepByRungeKutt(double h);
     void view();
-
-    // DEBUG CHECKERS
-    Matrix3d R_t;
-    Matrix3d R_min1;
-    double detR;
-    void debugComputations();
 };
 
 RigidBody* CylinderRigidBody(double r,double h);

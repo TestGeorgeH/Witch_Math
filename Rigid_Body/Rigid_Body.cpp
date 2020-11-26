@@ -78,8 +78,6 @@ void RigidBody::makeStepByRungeKutt(double step)
 
     bodyPosition.rotationMatrix = baseStepByRungeKutt <Matrix3d> (step, bodyPosition.rotationMatrix, rotationMatrixDerivative);
     rotationMatrixToNormal();
-    
-    debugComputations();
 }
 
 void RigidBody::view()
@@ -90,13 +88,6 @@ void RigidBody::view()
     cout << "totalTorque\n" << externalInfluences.totalTorque << "\n\n";
     cout << "positionVector\n" << bodyPosition.positionVector << "\n\n";
     cout << "rotationMatrix\n" << bodyPosition.rotationMatrix << "\n\n\n";
-}
-
-void RigidBody::debugComputations()
-{
-    R_t = bodyPosition.rotationMatrix.transpose();
-    R_min1 = bodyPosition.rotationMatrix.inverse();
-    detR = bodyPosition.rotationMatrix.determinant();
 }
 
 RigidBody* CylinderRigidBody(double r,double h)

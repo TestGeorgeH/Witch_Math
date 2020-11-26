@@ -59,8 +59,6 @@ void Display()
     BodyPosition rigidBodyPosition = rigidBody.bodyPosition;
 
     glTranslated(rigidBodyPosition.positionVector(0), rigidBodyPosition.positionVector(1), rigidBodyPosition.positionVector(2) - 5);
-    // std::cout  << "detR\n" << rigidBody.detR << "\n\n";
-    // std::cout  << "R_t - R_-1\n" << rigidBody.R_t - rigidBody.R_min1 << "\n\n";
     GLdouble rotationMatrixForOpenGL[16] = {rigidBodyPosition.rotationMatrix(0,0), rigidBodyPosition.rotationMatrix(1,0), rigidBodyPosition.rotationMatrix(2,0), 0,
                                             rigidBodyPosition.rotationMatrix(0,1), rigidBodyPosition.rotationMatrix(1,1), rigidBodyPosition.rotationMatrix(2,1), 0,
                                             rigidBodyPosition.rotationMatrix(0,2), rigidBodyPosition.rotationMatrix(1,2), rigidBodyPosition.rotationMatrix(2,2), 0,
