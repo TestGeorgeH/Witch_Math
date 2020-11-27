@@ -46,6 +46,7 @@ void drawCylinder() {
 
 void Display()
 {
+    rigidBody.view();
     glViewport(0, 0, 600, 600);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -53,7 +54,7 @@ void Display()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    rigidBody.makeStepByRungeKutt(0.01);
+    rigidBody.makeStepByRungeKutt(0.1);
     glPushMatrix();
     
     BodyPosition rigidBodyPosition = rigidBody.bodyPosition;

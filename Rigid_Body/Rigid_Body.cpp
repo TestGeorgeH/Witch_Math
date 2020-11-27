@@ -49,20 +49,29 @@ void RigidBody::makeStepByRungeKutt(double step)
     auto totalTorqueFunction = [theExternalInfluences](double h, Vector3d currentState){ return theExternalInfluences.totalTorque; };
 
     auto linearMomentumFunction = [totalForceFunction](double h, Vector3d currentState)
-    { return (baseStepByRungeKutt <Vector3d> (h, currentState, totalForceFunction)); };
+    {
+        Vector3d result = baseStepByRungeKutt <Vector3d> (h, currentState, totalForceFunction);
+        return result;
+    };
     
     auto angularMomentumFunction = [totalTorqueFunction](double h, Vector3d currentState)
     {
-         return baseStepByRungeKutt <Vector3d> (h, currentState, totalTorqueFunction);
+        Vector3d result = baseStepByRungeKutt <Vector3d> (h, currentState, totalTorqueFunction);
+        return result;
     };
 
     derivatives.linearMomentum = linearMomentumFunction(step, derivatives.linearMomentum);
     derivatives.angularMomentum = angularMomentumFunction(step, derivatives.angularMomentum);
 
     auto theMass = mass;
-    auto linearVelocityFunction = [theMass, linearMomentumFunction](double h, Vector3d currentState){ return linearMomentumFunction(h, currentState)/theMass; };
-    bodyPosition.positionVector = baseStepByRungeKutt <Vector3d> (step, bodyPosition.positionVector, linearVelocityFunction);
+    Vector3d theLinearMomentum = derivatives.linearMomentum;
+    auto linearVelocityFunction = [theMass, theLinearMomentum, linearMomentumFunction](double h, Vector3d currentState)
+    {
+        Vector3d result = linearMomentumFunction(h, theLinearMomentum)/theMass;
+        return result;
+    };
 
+    bodyPosition.positionVector = baseStepByRungeKutt <Vector3d> (step, bodyPosition.positionVector, linearVelocityFunction);
     Matrix3d theRotationMatrix = bodyPosition.rotationMatrix;
     Matrix3d theInertiaTensorBody = inertiaTensorBody;
     Vector3d theAngularMomentum = derivatives.angularMomentum; 
@@ -101,13 +110,26 @@ RigidBody* CylinderRigidBody(double r,double h)
                                    0, 1, 0,
                                    0, 0, 1;
     cylinderInertiaTensor << (mass/12) * (3*r*r + h*h), 0, 0,
-                              0, (mass/12) * (3*r*r + h*h), 0,
-                              0, 0, (mass * r*r / 2.0);
+                              0, (mass * r*r / 2.0), 0,
+                              0, 0, (mass/12) * (3*r*r + h*h);
     bodyPosition.positionVector << 0, 0, 0;
     
     derivatives.linearMomentum << 0, 0, 0;
-    derivatives.angularMomentum << 20, 40, 8;
+    derivatives.angularMomentum << 0, 0, 0;
 
     auto result = new RigidBody(mass, cylinderInertiaTensor, bodyPosition, derivatives);
     return result;
 }
+
+
+// RigidBody rigidBody = *(CylinderRigidBody(20, 50));
+// int main()
+// {
+    
+//     while (true)
+//     {
+//         rigidBody.makeStepByRungeKutt(0.1);
+//         rigidBody.view();
+//     }
+//     delete &rigidBody;    
+// }

@@ -22,7 +22,7 @@ struct Derivatives
 struct BodyPosition
 {
     Vector3d positionVector; // Do get-ers?
-    Matrix3d rotationMatrix; // With this ones you can draw the body    
+    Matrix3d rotationMatrix;
 };
 
 class RigidBody
