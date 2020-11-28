@@ -70,7 +70,6 @@ void RigidBody::makeStepByRungeKutt(double step)
         Vector3d result = linearMomentumFunction(h, theLinearMomentum)/theMass;
         return result;
     };
-
     bodyPosition.positionVector = baseStepByRungeKutt <Vector3d> (step, bodyPosition.positionVector, linearVelocityFunction);
     Matrix3d theRotationMatrix = bodyPosition.rotationMatrix;
     Matrix3d theInertiaTensorBody = inertiaTensorBody;
@@ -115,7 +114,7 @@ RigidBody* CylinderRigidBody(double r,double h)
     bodyPosition.positionVector << 0, 0, 0;
     
     derivatives.linearMomentum << 0, 0, 0;
-    derivatives.angularMomentum << 0, 0, 0;
+    derivatives.angularMomentum << 7, 1, 5;
 
     auto result = new RigidBody(mass, cylinderInertiaTensor, bodyPosition, derivatives);
     return result;

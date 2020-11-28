@@ -2,51 +2,46 @@
 #include <GL/glu.h>
 #include "../Rigid_Body/Rigid_Body.h"
 
-#define DEF_D 5
+#define DEF_D 1
 #define Cos(th) cos(M_PI/180*(th))
 #define Sin(th) sin(M_PI/180*(th))
 
-RigidBody rigidBody = *(CylinderRigidBody(20, 50));
+#define RADIUS 1
+#define HEIGHT 0.1
+#define STEP 0.001
+
+RigidBody rigidBody = *(CylinderRigidBody(RADIUS, HEIGHT));
 
 
 void Idle() {
     glutPostRedisplay();
 }
 
-void drawCylinder() {
+void drawCylinder(double r, double h) {
     int j, i, k;
     glBegin(GL_QUAD_STRIP);
     for (j=0;j<=360;j+=DEF_D) {
         glColor3f(Cos(j),Sin(j),0.5);
-        glVertex3f(Cos(j),+1,Sin(j));
+        glVertex3f(r*Cos(j),h/2,r*Sin(j));
         glColor3f(0.2,Cos(j),Sin(j));
-        glVertex3f(Cos(j),-1,Sin(j));
+        glVertex3f(r*Cos(j),-h/2,r*Sin(j));
     }
     glEnd();
 
     for (i=1;i>=-1;i-=2) {
         glBegin(GL_TRIANGLE_FAN);
         glColor3f(0.0,0.0,1.0);
-        glVertex3f(0,i,0);
+        glVertex3f(0,i*h/2,0);
         for (k=0;k<=360;k+=DEF_D) {
             glColor3f(1,0.0,0.0);
-            glVertex3f(i*Cos(k),i,Sin(k));
+            glVertex3f(i*Cos(k)*r,i*h/2,Sin(k)*r);
         }
         glEnd();
     }
-    glBegin(GL_QUAD_STRIP);
-    for (j=0;j<=0;j+=DEF_D) {
-        glColor3f(1,1,0.0);
-        glVertex3f(Cos(j),+1,Sin(j));
-        glColor3f(0.0,1,0.0);
-        glVertex3f(Cos(j),-1,Sin(j));
-    }
-    glEnd();
 }
 
 void Display()
 {
-    rigidBody.view();
     glViewport(0, 0, 600, 600);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -54,7 +49,7 @@ void Display()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    rigidBody.makeStepByRungeKutt(0.1);
+    rigidBody.makeStepByRungeKutt(STEP);
     glPushMatrix();
     
     BodyPosition rigidBodyPosition = rigidBody.bodyPosition;
@@ -65,7 +60,7 @@ void Display()
                                             rigidBodyPosition.rotationMatrix(0,2), rigidBodyPosition.rotationMatrix(1,2), rigidBodyPosition.rotationMatrix(2,2), 0,
                                             0, 0, 0, 1}; // The matrix is column major
     glMultMatrixd(rotationMatrixForOpenGL);
-    drawCylinder();
+    drawCylinder(RADIUS, HEIGHT);
     glPopMatrix();
     glFlush();
     glutSwapBuffers();
