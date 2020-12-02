@@ -85,10 +85,10 @@ void RigidBody::makeStepByRungeKutt(double step)
     Matrix3d theRotationMatrix = bodyPosition.rotationMatrix;
     Matrix3d theInertiaTensorBody = inertiaTensorBody;
     Vector3d theAngularMomentum = derivatives.angularMomentum; 
-    auto rotationMatrixDerivative = [theInertiaTensorBody, theRotationMatrix, angularMomentumFunction, theAngularMomentum](double h, Matrix3d currentState)
+    auto rotationMatrixDerivative = [theInertiaTensorBody, angularMomentumFunction, theAngularMomentum](double h, Matrix3d currentState)
     {
         Vector3d angularMomentum = angularMomentumFunction(h, theAngularMomentum);
-        Matrix3d inertiaTensorInv = (theRotationMatrix)*(theInertiaTensorBody.inverse())*(theRotationMatrix.transpose());
+        Matrix3d inertiaTensorInv = (currentState)*(theInertiaTensorBody.inverse())*(currentState.transpose());
         Vector3d angularVelocity = inertiaTensorInv * angularMomentum;
         Matrix3d starMatrix = starFunction(angularVelocity);
         Matrix3d result = starMatrix * currentState;
@@ -125,7 +125,7 @@ RigidBody* CylinderRigidBody(double r,double h)
     bodyPosition.positionVector << 0, 0, 0;
     
     derivatives.linearMomentum << 0, 0, 0;
-    derivatives.angularMomentum << 0, 50, 5;
+    derivatives.angularMomentum << 0, 50, 10;
 
     auto result = new RigidBody(mass, cylinderInertiaTensor, bodyPosition, derivatives);
     return result;
