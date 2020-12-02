@@ -55,25 +55,15 @@ T baseStepByRungeKutt(double h, T currentState, const function<T (double h, T st
 
 void RigidBody::makeStepByRungeKutt(double step)
 {
+    // Linear movement
     ExternalInfluences theExternalInfluences = externalInfluences;
     auto totalForceFunction = [theExternalInfluences](double h, Vector3d currentState){ return theExternalInfluences.totalForce; };
-    auto totalTorqueFunction = [theExternalInfluences](double h, Vector3d currentState){ return theExternalInfluences.totalTorque; };
-
     auto linearMomentumFunction = [totalForceFunction](double h, Vector3d currentState)
     {
         Vector3d result = baseStepByRungeKutt <Vector3d> (h, currentState, totalForceFunction);
         return result;
     };
-    
-    auto angularMomentumFunction = [totalTorqueFunction](double h, Vector3d currentState)
-    {
-        Vector3d result = baseStepByRungeKutt <Vector3d> (h, currentState, totalTorqueFunction);
-        return result;
-    };
-
     derivatives.linearMomentum = linearMomentumFunction(step, derivatives.linearMomentum);
-    derivatives.angularMomentum = angularMomentumFunction(step, derivatives.angularMomentum);
-
     auto theMass = mass;
     Vector3d theLinearMomentum = derivatives.linearMomentum;
     auto linearVelocityFunction = [theMass, theLinearMomentum, linearMomentumFunction](double h, Vector3d currentState)
@@ -82,6 +72,16 @@ void RigidBody::makeStepByRungeKutt(double step)
         return result;
     };
     bodyPosition.positionVector = baseStepByRungeKutt <Vector3d> (step, bodyPosition.positionVector, linearVelocityFunction);
+
+    // Angular movement
+    auto totalTorqueFunction = [theExternalInfluences](double h, Vector3d currentState){ return theExternalInfluences.totalTorque; };
+    auto angularMomentumFunction = [totalTorqueFunction](double h, Vector3d currentState)
+    {
+        Vector3d result = baseStepByRungeKutt <Vector3d> (h, currentState, totalTorqueFunction);
+        return result;
+    };
+    derivatives.angularMomentum = angularMomentumFunction(step, derivatives.angularMomentum);
+
     Matrix3d theRotationMatrix = bodyPosition.rotationMatrix;
     Matrix3d theInertiaTensorBody = inertiaTensorBody;
     Vector3d theAngularMomentum = derivatives.angularMomentum; 
@@ -125,7 +125,7 @@ RigidBody* CylinderRigidBody(double r,double h)
     bodyPosition.positionVector << 0, 0, 0;
     
     derivatives.linearMomentum << 0, 0, 0;
-    derivatives.angularMomentum << 0, 50, 10;
+    derivatives.angularMomentum << 0, 70, 10;
 
     auto result = new RigidBody(mass, cylinderInertiaTensor, bodyPosition, derivatives);
     return result;
