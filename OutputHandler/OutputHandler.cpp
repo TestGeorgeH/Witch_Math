@@ -6,8 +6,8 @@
 #define Cos(th) cos(M_PI/180*(th))
 #define Sin(th) sin(M_PI/180*(th))
 
-#define RADIUS 1
-#define HEIGHT 0.1
+#define RADIUS 0.5
+#define HEIGHT 5
 #define STEP 0.001
 
 RigidBody rigidBody = *(CylinderRigidBody(RADIUS, HEIGHT));

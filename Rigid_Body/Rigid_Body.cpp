@@ -13,8 +13,19 @@ Matrix3d starFunction(Vector3d x)
 
 void RigidBody::rotationMatrixToNormal()
 {
-    Matrix3d R = bodyPosition.rotationMatrix;
-    bodyPosition.rotationMatrix = (R + R.transpose().inverse())/2;
+    Matrix3d A = bodyPosition.rotationMatrix;
+    Matrix3d R;
+    R << 0, 0, 0,
+         0, 0, 0,
+         0, 0, 0;
+    double t_1_2, t_1_3, t_2_3;
+    R.col(0) = A.col(0);
+    t_1_2 = A.col(1).dot(R.col(0))/(R.col(0).dot(R.col(0)));
+    R.col(1) = A.col(1) - t_1_2*R.col(0);
+    t_1_3 = A.col(2).dot(R.col(0))/(R.col(0).dot(R.col(0)));
+    t_2_3 = A.col(2).dot(R.col(1))/(R.col(1).dot(R.col(1)));
+    R.col(2) = A.col(2) - t_1_3*R.col(0)  - t_2_3*R.col(1);
+    bodyPosition.rotationMatrix = R;
 }
 
 RigidBody::RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, BodyPosition bodyPositionInp, Derivatives derivativesInp)
@@ -114,21 +125,8 @@ RigidBody* CylinderRigidBody(double r,double h)
     bodyPosition.positionVector << 0, 0, 0;
     
     derivatives.linearMomentum << 0, 0, 0;
-    derivatives.angularMomentum << 7, 1, 5;
+    derivatives.angularMomentum << 0, 50, 5;
 
     auto result = new RigidBody(mass, cylinderInertiaTensor, bodyPosition, derivatives);
     return result;
 }
-
-
-// RigidBody rigidBody = *(CylinderRigidBody(20, 50));
-// int main()
-// {
-    
-//     while (true)
-//     {
-//         rigidBody.makeStepByRungeKutt(0.1);
-//         rigidBody.view();
-//     }
-//     delete &rigidBody;    
-// }
