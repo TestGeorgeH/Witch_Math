@@ -62,7 +62,7 @@ void Display()
     glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     rigidBody.makeStepByRungeKutt(STEP);
-    rigidBody.view();
+    // rigidBody.view();
     if (rigidBody.isCollidedCylinder(RADIUS, HEIGHT, 0.05))
         rigidBody.floorCollisionHanlerCylinder(RADIUS, HEIGHT, 0.05);
     glPushMatrix();

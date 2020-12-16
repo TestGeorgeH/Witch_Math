@@ -165,21 +165,16 @@ void RigidBody::floorCollisionHanlerCylinder(double r,double h, double e)
     if (collisionPlacement == zero)
         return;
 
-    Matrix3d inertiaTensor = bodyPosition.rotationMatrix * inertiaTensorBody * bodyPosition.rotationMatrix.transpose();
-    Vector3d p_dot = derivatives.linearMomentum + (derivatives.angularMomentum.cross(collisionPlacement));
-    cout << "p_dot " << p_dot << '\n';
+    Matrix3d inertiaTensorInv = bodyPosition.rotationMatrix * inertiaTensorBody.inverse() * bodyPosition.rotationMatrix.transpose();
+    Vector3d p_dot = derivatives.linearMomentum/mass + ((inertiaTensorInv * derivatives.angularMomentum).cross(collisionPlacement));
     Vector3d n;
     n << 0, 0, 1;
     double up = (-1 * n.dot(p_dot));
-    cout << "\nup " << up << '\n';
-    double down = (inertiaTensor * (collisionPlacement.cross(n))).cross(collisionPlacement).dot(n) + 1/mass;
-    cout << "\ndown " << down << '\n';
-    Vector3d force = (up/down) * n;
-    
-    cout << "\nforce " << force << '\n';
+    double down = n.dot((inertiaTensorInv * (collisionPlacement.cross(n))).cross(collisionPlacement)) + 1/mass;
+    Vector3d force = 2 * (up/down) * n;
 
     derivatives.linearMomentum += force;
-    derivatives.angularMomentum += force.cross(collisionPlacement);
+    derivatives.angularMomentum += collisionPlacement.cross(force);
 }
 
 RigidBody* CylinderRigidBody(double r,double h)
@@ -197,7 +192,7 @@ RigidBody* CylinderRigidBody(double r,double h)
                               0, 0, (mass/12) * (3*r*r + h*h);
     bodyPosition.positionVector << 0, 0, 0;
     
-    derivatives.linearMomentum << 0, 0, -10;
+    derivatives.linearMomentum << 0, 0, 0;
     derivatives.angularMomentum << 0, 1, 1;
 
     auto result = new RigidBody(mass, cylinderInertiaTensor, bodyPosition, derivatives);
