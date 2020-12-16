@@ -1,11 +1,18 @@
+#pragma once
+
 #include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <cmath>
 #include <functional>
 
+#define Cos(th) cos(M_PI/180*(th))
+#define Sin(th) sin(M_PI/180*(th))
+
 using namespace Eigen;
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
+
+#define FLOORLEVEL -10
 
 struct ExternalInfluences
 {
@@ -35,13 +42,17 @@ private:
     ExternalInfluences externalInfluences;
 
     void rotationMatrixToNormal();
-
+    Vector3d getCollisionPlacementCylinder(double r,double h, double e);
 public:
     BodyPosition bodyPosition;
 
     RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, BodyPosition bodyPositionInp, Derivatives derivativesInp);
     void makeStepByRungeKutt(double h);
     void view();
+
+    bool isCollidedCylinder(double r,double h, double e);
+    void floorCollisionHanlerCylinder(double r,double h, double e);
 };
 
 RigidBody* CylinderRigidBody(double r,double h);
+Vector3d* CylinderHitbox(double r,double h);

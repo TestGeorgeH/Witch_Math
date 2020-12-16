@@ -17,6 +17,18 @@ void Idle() {
     glutPostRedisplay();
 }
 
+void drawFloor(double d)
+{
+    glBegin(GL_QUADS);
+    glColor3d(0.5,0.5,0.5);
+    glVertex3f(-100, -100, 2*d);
+    glVertex3f(100, -100, 2*d);
+    glVertex3f(100, 100, 2*d);
+    glVertex3f(-100, 100, 2*d);
+
+    glEnd();
+}
+
 void drawCylinder(double r, double h) {
     int j, i, k;
     glBegin(GL_QUAD_STRIP);
@@ -42,7 +54,7 @@ void drawCylinder(double r, double h) {
 
 void Display()
 {
-    glViewport(0, 0, 600, 600);
+    glViewport(0, 0, 1000, 1000);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(60, 1, 1, 500);
@@ -50,8 +62,13 @@ void Display()
     glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     rigidBody.makeStepByRungeKutt(STEP);
+    rigidBody.view();
+    if (rigidBody.isCollidedCylinder(RADIUS, HEIGHT, 0.05))
+        rigidBody.floorCollisionHanlerCylinder(RADIUS, HEIGHT, 0.05);
     glPushMatrix();
     
+    drawFloor(FLOORLEVEL);
+
     BodyPosition rigidBodyPosition = rigidBody.bodyPosition;
 
     glTranslated(rigidBodyPosition.positionVector(0), rigidBodyPosition.positionVector(1), rigidBodyPosition.positionVector(2) - 5);

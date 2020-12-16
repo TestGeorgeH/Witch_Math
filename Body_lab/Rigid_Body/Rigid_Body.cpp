@@ -37,7 +37,7 @@ RigidBody::RigidBody(double massInp, Matrix3d inertiaTensorBodyInp, BodyPosition
     derivatives.linearMomentum = derivativesInp.linearMomentum;
     derivatives.angularMomentum = derivativesInp.angularMomentum;
 
-    externalInfluences.totalForce << 0, 0, 0;
+    externalInfluences.totalForce << 0, 0, -10;
     externalInfluences.totalTorque << 0, 0, 0;
 }
 
@@ -71,6 +71,7 @@ void RigidBody::makeStepByRungeKutt(double step)
         Vector3d result = linearMomentumFunction(h, theLinearMomentum)/theMass;
         return result;
     };
+    
     bodyPosition.positionVector = baseStepByRungeKutt <Vector3d> (step, bodyPosition.positionVector, linearVelocityFunction);
 
     // Angular movement
@@ -109,6 +110,78 @@ void RigidBody::view()
     cout << "rotationMatrix\n" << bodyPosition.rotationMatrix << "\n\n\n";
 }
 
+Vector3d* CylinderHitbox(double r,double h)
+{
+    int size = 720;
+    Vector3d* result = new Vector3d[size];
+    int resI = 0;
+    Vector3d temp;
+
+    for(int i=0; i<360; i++)
+    {
+        temp << r*Cos(i), h/2, r*Sin(i);
+        result[resI++] = temp;
+        temp << r*Cos(i), -h/2, r*Sin(i);
+        result[resI++] = temp;
+    }
+
+    return result;
+}
+bool RigidBody::isCollidedCylinder(double r, double h, double e)
+{
+    double floorLevel = FLOORLEVEL;
+    Vector3d* hitBox = CylinderHitbox(r, h);
+    for (int i = 0; i<720; i++)
+    {
+        if (abs((hitBox[i] + bodyPosition.positionVector)[2] - floorLevel) < e)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+Vector3d RigidBody::getCollisionPlacementCylinder(double r, double h, double e)
+{
+    double floorLevel = FLOORLEVEL;
+    Vector3d* hitBox = CylinderHitbox(r, h);
+    for (int i = 0; i<720; i++)
+    {
+        if (abs((hitBox[i] + bodyPosition.positionVector)[2] - floorLevel) < e)
+        {
+            return hitBox[i];
+        }
+    }
+    Vector3d zero;
+    zero << 0, 0, 0;
+    return zero;
+}
+
+void RigidBody::floorCollisionHanlerCylinder(double r,double h, double e)
+{
+    Vector3d collisionPlacement = getCollisionPlacementCylinder(r, h, e);
+    Vector3d zero;
+    zero << 0, 0, 0;
+    if (collisionPlacement == zero)
+        return;
+
+    Matrix3d inertiaTensor = bodyPosition.rotationMatrix * inertiaTensorBody * bodyPosition.rotationMatrix.transpose();
+    Vector3d p_dot = derivatives.linearMomentum + (derivatives.angularMomentum.cross(collisionPlacement));
+    cout << "p_dot " << p_dot << '\n';
+    Vector3d n;
+    n << 0, 0, 1;
+    double up = (-1 * n.dot(p_dot));
+    cout << "\nup " << up << '\n';
+    double down = (inertiaTensor * (collisionPlacement.cross(n))).cross(collisionPlacement).dot(n) + 1/mass;
+    cout << "\ndown " << down << '\n';
+    Vector3d force = (up/down) * n;
+    
+    cout << "\nforce " << force << '\n';
+
+    derivatives.linearMomentum += force;
+    derivatives.angularMomentum += force.cross(collisionPlacement);
+}
+
 RigidBody* CylinderRigidBody(double r,double h)
 {
     double mass = 1;
@@ -124,8 +197,8 @@ RigidBody* CylinderRigidBody(double r,double h)
                               0, 0, (mass/12) * (3*r*r + h*h);
     bodyPosition.positionVector << 0, 0, 0;
     
-    derivatives.linearMomentum << 0, 0, 0;
-    derivatives.angularMomentum << 0, 70, 10;
+    derivatives.linearMomentum << 0, 0, -10;
+    derivatives.angularMomentum << 0, 1, 1;
 
     auto result = new RigidBody(mass, cylinderInertiaTensor, bodyPosition, derivatives);
     return result;
