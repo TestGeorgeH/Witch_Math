@@ -135,11 +135,10 @@ public:
 
         do
         {
-            oldDif = oldRes.add(newRes.mult(-1)).abs();
-
             copy.h = h;
             copy.l = l;
 
+            oldDif = newDif;
             oldRes = newRes;
             pre++;
 
@@ -156,19 +155,11 @@ public:
 
             newRes = copy.add(oldRes);
 
-            cout << "copy\n";
-            copy.view();
-            cout << '\n';
-
-            cout << "old res\n";
-            oldRes.view();
-            cout << '\n';
-        
-            newDif = oldRes.add(newRes.mult(-1)).abs();
+            newDif = copy.abs();
 
             converged = newRes.isEqual(oldRes);
             legalValue = newRes.isFinite();
-            contToConverge = newDif.isSmaller(oldDif) || pre < 10;
+            contToConverge = newDif.isSmaller(oldDif) || pre < 3;
 
         } while (!converged && legalValue && contToConverge);
 
@@ -201,6 +192,6 @@ int FACT(unsigned int n)
 
 int main()
 {
-    DoubleDouble d(3);
+    DoubleDouble d(100);
     d.sin().view();
 }
