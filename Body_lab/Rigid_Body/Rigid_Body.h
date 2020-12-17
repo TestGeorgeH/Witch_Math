@@ -12,7 +12,7 @@ using namespace Eigen;
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
 
-#define FLOORLEVEL -10
+#define FLOORLEVEL -3
 
 struct ExternalInfluences
 {
@@ -50,8 +50,10 @@ public:
     void makeStepByRungeKutt(double h);
     void view();
 
-    bool isCollidedCylinder(double r,double h, double e);
-    void floorCollisionHanlerCylinder(double r,double h, double e);
+    bool isCollidedCylinder(double r, double h);
+    void floorCollisionHanlerCylinder(Vector3d collisionPlacement);
+    void solve(double step, double r, double h, double e);
+
 };
 
 RigidBody* CylinderRigidBody(double r,double h);

@@ -7,7 +7,7 @@
 #define Sin(th) sin(M_PI/180*(th))
 
 #define RADIUS 1
-#define HEIGHT 0.1
+#define HEIGHT 1
 #define STEP 0.001
 
 RigidBody rigidBody = *(CylinderRigidBody(RADIUS, HEIGHT));
@@ -21,10 +21,10 @@ void drawFloor(double d)
 {
     glBegin(GL_QUADS);
     glColor3d(0.5,0.5,0.5);
-    glVertex3f(-100, -100, 2*d);
-    glVertex3f(100, -100, 2*d);
-    glVertex3f(100, 100, 2*d);
-    glVertex3f(-100, 100, 2*d);
+    glVertex3f(-100, 2*d, -100);
+    glVertex3f(100, 2*d, -100);
+    glVertex3f(100, 2*d, 100);
+    glVertex3f(-100, 2*d, 100);
 
     glEnd();
 }
@@ -61,17 +61,15 @@ void Display()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    rigidBody.makeStepByRungeKutt(STEP);
+    rigidBody.solve(STEP, RADIUS, HEIGHT, 0.0005);
     // rigidBody.view();
-    if (rigidBody.isCollidedCylinder(RADIUS, HEIGHT, 0.05))
-        rigidBody.floorCollisionHanlerCylinder(RADIUS, HEIGHT, 0.05);
     glPushMatrix();
     
     drawFloor(FLOORLEVEL);
 
     BodyPosition rigidBodyPosition = rigidBody.bodyPosition;
 
-    glTranslated(rigidBodyPosition.positionVector(0), rigidBodyPosition.positionVector(1), rigidBodyPosition.positionVector(2) - 5);
+    glTranslated(rigidBodyPosition.positionVector(0), rigidBodyPosition.positionVector(1), rigidBodyPosition.positionVector(2) - 12);
     GLdouble rotationMatrixForOpenGL[16] = {rigidBodyPosition.rotationMatrix(0,0), rigidBodyPosition.rotationMatrix(1,0), rigidBodyPosition.rotationMatrix(2,0), 0,
                                             rigidBodyPosition.rotationMatrix(0,1), rigidBodyPosition.rotationMatrix(1,1), rigidBodyPosition.rotationMatrix(2,1), 0,
                                             rigidBodyPosition.rotationMatrix(0,2), rigidBodyPosition.rotationMatrix(1,2), rigidBodyPosition.rotationMatrix(2,2), 0,
