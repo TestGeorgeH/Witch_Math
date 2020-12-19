@@ -13,6 +13,7 @@ using Eigen::Matrix3d;
 using Eigen::Vector3d;
 
 #define FLOORLEVEL -3
+#define COLLIDETOLERANCE 0
 
 struct ExternalInfluences
 {
@@ -28,7 +29,7 @@ struct Derivatives
 
 struct BodyPosition
 {
-    Vector3d positionVector; // Do get-ers?
+    Vector3d positionVector;
     Matrix3d rotationMatrix;
 };
 

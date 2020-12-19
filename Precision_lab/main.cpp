@@ -11,13 +11,14 @@ using namespace std;
 class DoubleDouble;
 
 DoubleDouble Fast2Sum(double x, double y);
-DoubleDouble Fast2MultFMA(double x, double y);
+DoubleDouble Mult(double x, double y);
 int FACT(unsigned int n);
 
 class DoubleDouble
 {
 public:
   double h, l;
+
 
     DoubleDouble(double h_inp = 0, double l_inp = 0)
     {
@@ -61,6 +62,11 @@ public:
         return true;
     }
 
+    DoubleDouble minus()
+    {
+        return DoubleDouble(-h, -l);
+    }
+
     DoubleDouble abs()
     {
         DoubleDouble res(h, l);
@@ -96,7 +102,7 @@ public:
 
     DoubleDouble mult(DoubleDouble y)
     {
-        DoubleDouble c = Fast2MultFMA(h, y.h);
+        DoubleDouble c = Mult(h, y.h);
         double p1 = h * y.l;
         double p2 = l * y.h;
         c.l = c.l + (p1 + p2);
@@ -121,10 +127,10 @@ public:
     {
         DoubleDouble copy(h, l); 
         if (h > PI)
-            return copy.add(-PI).mult(-1).sin();
+            return copy.add(-PI).sin().minus();
 
         if (-h > PI)
-            return copy.add(PI).mult(-1).sin();
+            return copy.add(PI).sin().minus();
 
         DoubleDouble oldRes(std::numeric_limits<double>::max()), newRes;
         DoubleDouble oldDif, newDif;
@@ -135,8 +141,7 @@ public:
 
         do
         {
-            copy.h = h;
-            copy.l = l;
+            copy = *this;
 
             oldDif = newDif;
             oldRes = newRes;
@@ -147,16 +152,15 @@ public:
             DoubleDouble factInv(factInvd);
 
             copy = copy.pow(2*pre -1);
-
             copy = copy.mult(factInv);
 
             if (pre%2 == 0)
-                copy = copy.mult(-1);
+                copy = copy.minus();
 
             newRes = copy.add(oldRes);
 
             newDif = copy.abs();
-
+            
             converged = newRes.isEqual(oldRes);
             legalValue = newRes.isFinite();
             contToConverge = newDif.isSmaller(oldDif) || pre < 3;
@@ -175,11 +179,29 @@ DoubleDouble Fast2Sum(double x, double y)
   return DoubleDouble(s, t);
 }
 
-DoubleDouble Fast2MultFMA(double x, double y)
+DoubleDouble Split(double x, int s)
 {
-  double r1 = x*y;
-  double r2 = x*y - r1;
-  return DoubleDouble(r1, r2);
+    long int C = (1 << s) + 1;
+    double t1 = C*x;
+    double t2 = x - t1;
+    double r1 = t1 + t2;
+    double r2 = x - r1;
+    return DoubleDouble(r1, r2);
+}
+
+DoubleDouble Mult(double x, double y)
+{
+    int s = 27;
+    DoubleDouble dx = Split(x, s);
+    DoubleDouble dy = Split(y, s);
+
+    double r1 = x*y;
+    double t1 = -r1 + (dx.h * dy.h);
+    double t2 = t1 + (dx.h * dy.l);
+    double t3 = t2 + (dx.l * dy.h);
+    double r2 = t3 + (dx.l * dy.l);
+        
+    return DoubleDouble(r1, r2);
 }
 
 int FACT(unsigned int n)
@@ -192,6 +214,9 @@ int FACT(unsigned int n)
 
 int main()
 {
-    DoubleDouble d(100);
+    DoubleDouble d = Split(M_PI, 27);
+    cout << "d\n";
+    d.view();
+
     d.sin().view();
 }

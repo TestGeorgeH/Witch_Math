@@ -101,15 +101,17 @@ void RigidBody::makeStepByRungeKutt(double step)
 
 void RigidBody::view()
 {
-    cout << "angularMomentum\n" << derivatives.angularMomentum << "\n\n";
+    cout << '\n';
+    cout << "positionVector\n" << bodyPosition.positionVector << "\n\n";
+    cout << "rotationMatrix\n" << bodyPosition.rotationMatrix << "\n\n";
     cout << "linearMomentum\n" << derivatives.linearMomentum << "\n\n";
+    cout << "angularMomentum\n" << derivatives.angularMomentum << "\n\n";
     cout << "totalForce\n" << externalInfluences.totalForce << "\n\n";
     cout << "totalTorque\n" << externalInfluences.totalTorque << "\n\n";
-    cout << "positionVector\n" << bodyPosition.positionVector << "\n\n";
-    cout << "rotationMatrix\n" << bodyPosition.rotationMatrix << "\n\n\n";
+    cout << '\n';
 }
 
-Vector3d* CylinderHitbox(double r,double h)
+Vector3d* CylinderHitbox(double r,double h) // Whole idea with hitbox does not work
 {
     int size = 720;
     Vector3d* result = new Vector3d[size];
@@ -129,12 +131,24 @@ Vector3d* CylinderHitbox(double r,double h)
 
 bool RigidBody::isCollidedCylinder(double r, double h)
 {
+    double collideTolerance = COLLIDETOLERANCE;
     double floorLevel = FLOORLEVEL;
     Vector3d* hitBox = CylinderHitbox(r, h);
+    Vector3d n;
+    n << 0, 1, 0;
     for (int i = 0; i<720; i++)
     {
-        if ((hitBox[i] + bodyPosition.positionVector)[1] < floorLevel)
+        Vector3d collisionPlacement = bodyPosition.rotationMatrix * hitBox[i];
+        Matrix3d inertiaTensorInv = bodyPosition.rotationMatrix * inertiaTensorBody.inverse() * bodyPosition.rotationMatrix.transpose();
+        Vector3d p_dot = derivatives.linearMomentum/mass + ((inertiaTensorInv * derivatives.angularMomentum).cross(collisionPlacement));
+        bool isBelowFloor = (collisionPlacement + bodyPosition.positionVector).dot(n) < floorLevel;
+        bool isGoesToFloor = p_dot.dot(n) < -collideTolerance;
+        
+        if (isBelowFloor && isGoesToFloor)
+        {   
+            cout << "Goes to floor with speed " << p_dot.dot(n) << '\n';
             return true;
+        }
     }
     return false;
 }
@@ -145,7 +159,7 @@ Vector3d RigidBody::getCollisionPlacementCylinder(double r, double h, double e)
     Vector3d* hitBox = CylinderHitbox(r, h);
     for (int i = 0; i<720; i++)
     {
-        double distance = (hitBox[i] + bodyPosition.positionVector)[1] - floorLevel;
+        double distance = (bodyPosition.rotationMatrix * hitBox[i] + bodyPosition.positionVector)[1] - floorLevel;
         if ( 0 < distance && distance < e)
         {
             cout << "dist " << distance << '\n';
@@ -159,20 +173,22 @@ Vector3d RigidBody::getCollisionPlacementCylinder(double r, double h, double e)
 
 void RigidBody::floorCollisionHanlerCylinder(Vector3d collisionPlacement)
 {
+    Vector3d colPlWithRotation = bodyPosition.rotationMatrix * collisionPlacement;
     Matrix3d inertiaTensorInv = bodyPosition.rotationMatrix * inertiaTensorBody.inverse() * bodyPosition.rotationMatrix.transpose();
-    Vector3d p_dot = derivatives.linearMomentum/mass + ((inertiaTensorInv * derivatives.angularMomentum).cross(collisionPlacement));
+    Vector3d p_dot = derivatives.linearMomentum/mass + ((inertiaTensorInv * derivatives.angularMomentum).cross(colPlWithRotation));
     Vector3d n;
     n << 0, 1, 0;
-    double up = (-1 * n.dot(p_dot));
-    double down = n.dot((inertiaTensorInv * (collisionPlacement.cross(n))).cross(collisionPlacement)) + 1/mass;
-    Vector3d force = 2 * (up/down) * n;
+    double numerator = (-1 * n.dot(p_dot));
+    double term1 = 1/mass;
+    double term2 = n.dot((inertiaTensorInv * (colPlWithRotation.cross(n))).cross(colPlWithRotation));
+    Vector3d force = 2 * (numerator/(term1 + term2)) * n;
 
     cout << "\nForce\n" << force << '\n';
-    cout << "collisionPlacement\n" << collisionPlacement << '\n';
-    cout << "collisionPlacement x Force\n" << collisionPlacement.cross(force) << '\n';
+    cout << "colPlWithRotation\n" << colPlWithRotation << '\n';
+    cout << "colPlWithRotation x Force\n" << colPlWithRotation.cross(force) << '\n';
 
     derivatives.linearMomentum += force;
-    derivatives.angularMomentum += collisionPlacement.cross(force);
+    derivatives.angularMomentum += colPlWithRotation.cross(force);
 }
 
 void RigidBody::solve(double step, double r, double h, double e)
@@ -209,7 +225,11 @@ void RigidBody::solve(double step, double r, double h, double e)
             else
                 currentStep = currentStep/2;;
         }
+        cout << "\nBody before\n\n";
+        view();
         floorCollisionHanlerCylinder(collisionPlacement);
+        cout << "\nBody after\n\n";
+        view();
     }
 
     makeStepByRungeKutt(currentStep); 
@@ -231,7 +251,7 @@ RigidBody* CylinderRigidBody(double r,double h)
     bodyPosition.positionVector << 0, 0, 0;
     
     derivatives.linearMomentum << 0, 0, 0;
-    derivatives.angularMomentum << 0, 1, 1;
+    derivatives.angularMomentum << 5, 3, 1;
 
     auto result = new RigidBody(mass, cylinderInertiaTensor, bodyPosition, derivatives);
     return result;

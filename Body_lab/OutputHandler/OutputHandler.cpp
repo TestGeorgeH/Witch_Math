@@ -8,7 +8,7 @@
 
 #define RADIUS 1
 #define HEIGHT 1
-#define STEP 0.001
+#define STEP 0.002
 
 RigidBody rigidBody = *(CylinderRigidBody(RADIUS, HEIGHT));
 
