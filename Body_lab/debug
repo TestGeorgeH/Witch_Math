@@ -1,0 +1,455 @@
+Goes to floor with speed -8.84815
+Current step 0.002
+Goes to floor with speed -8.84815
+Current step 0.001
+dist 0.00028278
+FOUND COLLISION
+
+Body before
+
+
+positionVector
+       0
+-1.91576
+       0
+
+rotationMatrix
+ -0.53135  0.624107 -0.572851
+ 0.820437  0.210627 -0.531526
+-0.211072 -0.752414 -0.623956
+
+linearMomentum
+    0
+-6.16
+    0
+
+angularMomentum
+5
+3
+1
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+
+
+Force
+      0
+16.5242
+      0
+colPlWithRotation
+-0.0725842
+  -1.07351
+  0.303808
+colPlWithRotation x Force
+-5.02018
+       0
+ -1.1994
+
+Body after
+
+
+positionVector
+       0
+-1.91576
+       0
+
+rotationMatrix
+ -0.53135  0.624107 -0.572851
+ 0.820437  0.210627 -0.531526
+-0.211072 -0.752414 -0.623956
+
+linearMomentum
+      0
+10.3642
+      0
+
+angularMomentum
+-0.0201809
+         3
+ -0.199397
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+
+Goes to floor with speed -10.2038
+Current step 0.002
+Goes to floor with speed -10.2038
+Current step 0.001
+DO THE STEP
+Current step 0.001
+Goes to floor with speed -10.2038
+Current step 0.0005
+DO THE STEP
+Current step 0.0005
+Goes to floor with speed -10.2038
+Current step 0.00025
+dist 0.000331977
+FOUND COLLISION
+
+Body before
+
+
+positionVector
+       0
+-1.89672
+       0
+
+rotationMatrix
+-0.404311  0.771628  0.491042
+-0.552248   0.22201 -0.803575
+-0.729078 -0.596072  0.336369
+
+linearMomentum
+       0
+-10.2858
+       0
+
+angularMomentum
+-0.0201809
+         3
+ -0.199397
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+
+
+Force
+      0
+16.7291
+      0
+colPlWithRotation
+-0.236971
+ -1.08512
+ 0.127902
+colPlWithRotation x Force
+-2.13969
+       0
+ -3.9643
+
+Body after
+
+
+positionVector
+       0
+-1.89672
+       0
+
+rotationMatrix
+-0.404311  0.771628  0.491042
+-0.552248   0.22201 -0.803575
+-0.729078 -0.596072  0.336369
+
+linearMomentum
+      0
+6.44329
+      0
+
+angularMomentum
+-2.15987
+       3
+ -4.1637
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+
+Goes to floor with speed -4.3015
+Current step 0.002
+Goes to floor with speed -4.3015
+Current step 0.001
+dist 1.93609e-05
+FOUND COLLISION
+
+Body before
+
+
+positionVector
+       0
+-1.88129
+       0
+
+rotationMatrix
+ 0.108998 -0.910518  0.398843
+-0.591622 -0.381853 -0.710051
+ 0.798814  -0.15857 -0.580304
+
+linearMomentum
+       0
+-6.35921
+       0
+
+angularMomentum
+-2.15987
+       3
+ -4.1637
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+
+
+Force
+      0
+9.85051
+      0
+colPlWithRotation
+-0.0892277
+  -1.11371
+ 0.0410973
+colPlWithRotation x Force
+ -0.40483
+        0
+-0.878939
+
+Body after
+
+
+positionVector
+       0
+-1.88129
+       0
+
+rotationMatrix
+ 0.108998 -0.910518  0.398843
+-0.591622 -0.381853 -0.710051
+ 0.798814  -0.15857 -0.580304
+
+linearMomentum
+     0
+3.4913
+     0
+
+angularMomentum
+ -2.5647
+       3
+-5.04264
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+
+Goes to floor with speed -6.32189
+Current step 0.002
+Goes to floor with speed -6.32189
+Current step 0.001
+dist 0.000422594
+FOUND COLLISION
+
+Body before
+
+
+positionVector
+      0
+-1.8978
+      0
+
+rotationMatrix
+-0.304721 -0.933755  -0.18774
+-0.942062  0.266466  0.203752
+-0.140228  0.238951 -0.960853
+
+linearMomentum
+      0
+-3.4787
+      0
+
+angularMomentum
+ -2.5647
+       3
+-5.04264
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+
+
+Force
+      0
+12.0769
+      0
+colPlWithRotation
+ 0.225709
+ -1.09496
+0.0105754
+colPlWithRotation x Force
+-0.127718
+        0
+  2.72586
+
+Body after
+
+
+positionVector
+      0
+-1.8978
+      0
+
+rotationMatrix
+-0.304721 -0.933755  -0.18774
+-0.942062  0.266466  0.203752
+-0.140228  0.238951 -0.960853
+
+linearMomentum
+     0
+8.5982
+     0
+
+angularMomentum
+-2.69242
+       3
+-2.31677
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+
+Goes to floor with speed -6.88846
+Current step 0.002
+Goes to floor with speed -6.88846
+Current step 0.001
+Goes to floor with speed -7.52015
+Current step 0.0005
+dist 0.000357775
+FOUND COLLISION
+
+Body before
+
+
+positionVector
+       0
+-1.90946
+       0
+
+rotationMatrix
+-0.137856 -0.819716  0.555934
+-0.817092 -0.223109 -0.531586
+ 0.559783 -0.527531 -0.639026
+
+linearMomentum
+      0
+-8.5518
+      0
+
+angularMomentum
+-2.69242
+       3
+-2.31677
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+
+
+Force
+      0
+13.2507
+      0
+colPlWithRotation
+-0.232166
+ -1.08619
+-0.127675
+colPlWithRotation x Force
+ 1.69179
+       0
+-3.07637
+
+Body after
+
+
+positionVector
+       0
+-1.90946
+       0
+
+rotationMatrix
+-0.137856 -0.819716  0.555934
+-0.817092 -0.223109 -0.531586
+ 0.559783 -0.527531 -0.639026
+
+linearMomentum
+      0
+4.69894
+      0
+
+angularMomentum
+-1.00062
+       3
+-5.39315
+
+totalForce
+  0
+-10
+  0
+
+totalTorque
+0
+0
+0
+
+

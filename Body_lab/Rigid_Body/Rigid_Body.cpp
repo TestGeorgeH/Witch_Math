@@ -146,7 +146,6 @@ bool RigidBody::isCollidedCylinder(double r, double h)
         
         if (isBelowFloor && isGoesToFloor)
         {   
-            cout << "Goes to floor with speed " << p_dot.dot(n) << '\n';
             return true;
         }
     }
@@ -162,7 +161,6 @@ Vector3d RigidBody::getCollisionPlacementCylinder(double r, double h, double e)
         double distance = (bodyPosition.rotationMatrix * hitBox[i] + bodyPosition.positionVector)[1] - floorLevel;
         if ( 0 < distance && distance < e)
         {
-            cout << "dist " << distance << '\n';
             return hitBox[i];
         }
     }
@@ -182,10 +180,6 @@ void RigidBody::floorCollisionHanlerCylinder(Vector3d collisionPlacement)
     double term1 = 1/mass;
     double term2 = n.dot((inertiaTensorInv * (colPlWithRotation.cross(n))).cross(colPlWithRotation));
     Vector3d force = 2 * (numerator/(term1 + term2)) * n;
-
-    cout << "\nForce\n" << force << '\n';
-    cout << "colPlWithRotation\n" << colPlWithRotation << '\n';
-    cout << "colPlWithRotation x Force\n" << colPlWithRotation.cross(force) << '\n';
 
     derivatives.linearMomentum += force;
     derivatives.angularMomentum += colPlWithRotation.cross(force);
@@ -207,29 +201,22 @@ void RigidBody::solve(double step, double r, double h, double e)
     {
         while (true)
         {
-            cout << "Current step " << currentStep << '\n';
             tempCopy = mainCopy;
             tempCopy.makeStepByRungeKutt(currentStep);
 
             collisionPlacement = tempCopy.getCollisionPlacementCylinder(r, h, e);
             if (collisionPlacement != zero)
             {
-                cout << "FOUND COLLISION\n";
                 break;
             }
             if (!tempCopy.isCollidedCylinder(r, h))
             {
                 mainCopy.makeStepByRungeKutt(currentStep);
-                cout << "DO THE STEP\n";
             }
             else
                 currentStep = currentStep/2;;
         }
-        cout << "\nBody before\n\n";
-        view();
         floorCollisionHanlerCylinder(collisionPlacement);
-        cout << "\nBody after\n\n";
-        view();
     }
 
     makeStepByRungeKutt(currentStep); 
