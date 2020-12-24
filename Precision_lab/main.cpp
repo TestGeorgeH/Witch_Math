@@ -3,16 +3,17 @@
 #include <cmath> // Working with double only
 #include <limits>
 
-int PRECISION = 30;
-long double PI = 3.14159265358979323846264338327950288419716939937510L;
+class DoubleDouble;
+
+int PRECISION = 15;
+int SPLITCONSTANT = 27;
 
 using namespace std;
-
-class DoubleDouble;
 
 DoubleDouble Fast2Sum(double x, double y);
 DoubleDouble Mult(double x, double y);
 int FACT(unsigned int n);
+DoubleDouble Split(double x, int s);
 
 class DoubleDouble
 {
@@ -125,11 +126,14 @@ public:
 
     DoubleDouble sin()
     {
+        DoubleDouble PI = Split(M_PI, SPLITCONSTANT);
         DoubleDouble copy(h, l); 
-        if (h > PI)
-            return copy.add(-PI).sin().minus();
+        // h > PI
+        if (PI.isSmaller(*this))
+            return copy.add(PI.minus()).sin().minus();
 
-        if (-h > PI)
+        // -h > PI
+        if (isSmaller(PI.minus()))
             return copy.add(PI).sin().minus();
 
         DoubleDouble oldRes(std::numeric_limits<double>::max()), newRes;
@@ -214,9 +218,21 @@ int FACT(unsigned int n)
 
 int main()
 {
-    DoubleDouble d = Split(M_PI, 27);
+    DoubleDouble PI = Split(M_PI, SPLITCONSTANT);
+    cout << "M_PI = " << setprecision(PRECISION*5) << M_PI << '\n';
+    cout << "Programm PI\n";
+    PI.view();
+    DoubleDouble d = Split(2, SPLITCONSTANT);
     cout << "d\n";
     d.view();
 
     d.sin().view();
 }
+
+// sin(100) == -0.506365641109758793656557610459785432065032721290657323443392473...
+// sin(2) == 0.9092974268256816953960198659117448427022549714478902683789...
+
+
+// sin(100) by the programm ==
+// h = -0.506460370711553919953473723581
+// l = -9.82362775736079696677550152375e-18
