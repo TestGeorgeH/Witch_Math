@@ -12,7 +12,6 @@ using namespace std;
 
 DoubleDouble Fast2Sum(double x, double y);
 DoubleDouble Mult(double x, double y);
-int FACT(unsigned int n);
 DoubleDouble factInv(unsigned int n);
 DoubleDouble Split(double x, int s);
 
@@ -231,13 +230,6 @@ DoubleDouble Mult(double x, double y)
     double r2 = t3 + (dx.l * dy.l);
         
     return DoubleDouble(r1, r2);
-}
-
-int FACT(unsigned int n)
-{
-  if (n == 1)
-    return 1;
-  return n * FACT(n-1);
 }
 
 DoubleDouble factInv(unsigned int n)
