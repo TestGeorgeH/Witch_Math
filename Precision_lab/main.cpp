@@ -13,6 +13,7 @@ using namespace std;
 DoubleDouble Fast2Sum(double x, double y);
 DoubleDouble Mult(double x, double y);
 int FACT(unsigned int n);
+DoubleDouble factInv(unsigned int n);
 DoubleDouble Split(double x, int s);
 
 class DoubleDouble
@@ -124,6 +125,24 @@ public:
         return copy.mult(copy.pow(n-1));
     }
 
+    DoubleDouble sinTaylorPartNumber(unsigned int n)
+    {
+        if (n == 0)
+            return DoubleDouble(0, 0);
+
+        DoubleDouble copy = *this;
+
+        DoubleDouble fInv = factInv(2*n -1);
+
+        copy = copy.pow(2*n -1);
+        copy = copy.mult(fInv);
+
+        if (n%2 == 0)
+            copy = copy.minus();
+        
+        return copy;
+    }
+
     DoubleDouble sin()
     {
         DoubleDouble PI = Split(M_PI, SPLITCONSTANT);
@@ -151,15 +170,7 @@ public:
             oldRes = newRes;
             pre++;
 
-            double fact = FACT(2*pre -1);
-            double factInvd = 1/fact;
-            DoubleDouble factInv(factInvd);
-
-            copy = copy.pow(2*pre -1);
-            copy = copy.mult(factInv);
-
-            if (pre%2 == 0)
-                copy = copy.minus();
+            copy = copy.sinTaylorPartNumber(pre);
 
             newRes = copy.add(oldRes);
 
@@ -167,9 +178,23 @@ public:
             
             converged = newRes.isEqual(oldRes);
             legalValue = newRes.isFinite();
-            contToConverge = newDif.isSmaller(oldDif) || pre < 3;
+            contToConverge = newDif.isSmaller(oldDif) || pre < 10;
+
+
+
+            cout << "Current sin value\n";
+            newRes.view();
+            cout << '\n';
+            
 
         } while (!converged && legalValue && contToConverge);
+
+        if (converged)
+            cout << "Converged\n";
+        if (legalValue)
+            cout << "next is illegal value\n";
+        if (!contToConverge)
+            cout << "Stopped conversion\n";
 
         return oldRes;
     }
@@ -215,18 +240,36 @@ int FACT(unsigned int n)
   return n * FACT(n-1);
 }
 
+DoubleDouble factInv(unsigned int n)
+{
+    if (n == 1)
+        return DoubleDouble(1, 0);
+    DoubleDouble dnInv = Split(1.0/n, SPLITCONSTANT);
+    return dnInv.mult(factInv(n-1));
+}
 
 int main()
 {
-    DoubleDouble PI = Split(M_PI, SPLITCONSTANT);
-    cout << "M_PI = " << setprecision(PRECISION*5) << M_PI << '\n';
-    cout << "Programm PI\n";
-    PI.view();
+    // DoubleDouble PI = Split(M_PI, SPLITCONSTANT);
+    // cout << "M_PI = " << setprecision(PRECISION*5) << M_PI << '\n';
+    // cout << "Programm PI\n";
+    // PI.view();
     DoubleDouble d = Split(2, SPLITCONSTANT);
     cout << "d\n";
     d.view();
 
-    d.sin().view();
+    // for (int i=1; i<20; i++)
+    // {
+    //     cout << "Part " << i << '\n';
+    //     d.sinTaylorPartNumber(i).view();
+    //     cout << '\n';
+    // }
+
+    DoubleDouble res = d.sin();
+
+    cout << "RESULT\n";
+    res.view();
+    cout << "h + l == " << setprecision(PRECISION) << res.h + res.l << '\n';
 }
 
 // sin(100) == -0.506365641109758793656557610459785432065032721290657323443392473...
