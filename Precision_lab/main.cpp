@@ -227,7 +227,7 @@ int main()
     // res.view();
     // cout << "h + l == " << setprecision(PRECISION) << res.h + res.l << '\n';
 
-    DoubleDouble d(M_PI, 0);
+    DoubleDouble d(pow(2, -8), 0);
     printf("input : %.30le + %.30le\n", d.h, d.l);
     DoubleDouble sind = d.sin();
     printf("result: %.30le + %.30le\n", sind.h, sind.l);
