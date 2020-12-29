@@ -41,14 +41,16 @@ bool DoubleDouble::isSmaller(DoubleDouble y)
 {
     if (h > y.h)
         return false;
-    if (l > y.l)
+    if (h < y.h)
+        return true;
+    if (l >= y.l)
         return false;
     return true;
 }
 
 DoubleDouble DoubleDouble::minus()
 {
-    return DoubleDouble(-h, -l);
+    return DoubleDouble(-1.0*h, -1.0*l);
 }
 
 DoubleDouble DoubleDouble::abs()
@@ -127,14 +129,28 @@ DoubleDouble DoubleDouble::sinTaylorPartNumber(unsigned int n)
 
 DoubleDouble DoubleDouble::sin()
 {
-    DoubleDouble copy(h, l); 
+    cout << "handeling\n";
+    view();
+    cout << '\n';
+    DoubleDouble copy(h, l);
+    DoubleDouble zero(0, 0);
+    DoubleDouble half = Split(1.0/2, SPLITCONSTANT);
+
+    cout << "PI.mult(half)\n";
+    PI.mult(half).view();
+    cout << '\n';
+    cout << "PI.mult(half).isSmaller(*this) " << PI.mult(half).isSmaller(*this) << "\n";
+
+    if (isSmaller(zero))
+        return copy.minus().sin().minus();
+    
     // h > PI
-    if (PI.isSmaller(*this))
+    if (PI.mult(half).isSmaller(*this))
         return copy.add(PI.minus()).sin().minus();
 
-    // -h > PI
-    if (isSmaller(PI.minus()))
-        return copy.add(PI).sin().minus();
+    // // -h > PI
+    // if (isSmaller(PI.minus()))
+    //     return copy.add(PI).sin().minus();
 
     DoubleDouble oldRes(std::numeric_limits<double>::max()), newRes;
     DoubleDouble oldDif, newDif;
@@ -217,21 +233,22 @@ DoubleDouble factInv(unsigned int n)
 
 int main()
 {
-    // DoubleDouble d = M_PI;
-    // cout << "d\n";
-    // d.view();
 
-    // DoubleDouble res = d.sin();
-
-    // cout << "RESULT\n";
-    // res.view();
-    // cout << "h + l == " << setprecision(PRECISION) << res.h + res.l << '\n';
-
-    DoubleDouble d(pow(2, -8), 0);
+    DoubleDouble d(M_PI, 0);
     printf("input : %.30le + %.30le\n", d.h, d.l);
     DoubleDouble sind = d.sin();
     printf("result: %.30le + %.30le\n", sind.h, sind.l);
-}
+
+
+
+    // DoubleDouble d(pow(2, -8), 0);
+    // printf("input : %.30le + %.30le\n", d.h, d.l);
+    // DoubleDouble sind = d.sin();
+    // printf("result: %.30le + %.30le\n", sind.h , sind.l);
+
+
+
+}   
 
 // sin(100) == -0.506365641109758793656557610459785432065032721290657323443392473...
 // sin(2) == 0.9092974268256816953960198659117448427022549714478902683789...
