@@ -129,17 +129,9 @@ DoubleDouble DoubleDouble::sinTaylorPartNumber(unsigned int n)
 
 DoubleDouble DoubleDouble::sin()
 {
-    cout << "handeling\n";
-    view();
-    cout << '\n';
     DoubleDouble copy(h, l);
     DoubleDouble zero(0, 0);
     DoubleDouble half = Split(1.0/2, SPLITCONSTANT);
-
-    cout << "PI.mult(half)\n";
-    PI.mult(half).view();
-    cout << '\n';
-    cout << "PI.mult(half).isSmaller(*this) " << PI.mult(half).isSmaller(*this) << "\n";
 
     if (isSmaller(zero))
         return copy.minus().sin().minus();
